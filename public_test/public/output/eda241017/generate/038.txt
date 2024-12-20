@@ -1,0 +1,1 @@
+{'ckt_type': '', 'ckt_netlist': [], 'error': 'Traceback (most recent call last):\n  File "/home/public/public/get_raw_result_mp_v2.py", line 62, in run_tests\n    result = solution(os.path.join(load_dir, file))\n  File "/home/eda241017_submission/my_solution.py", line 73, in solution\n    img = cv2.imread(img_path)\nKeyboardInterrupt\n', 'pic_ct': 0.045}

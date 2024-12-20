@@ -1,11 +1,14 @@
-import json
+import json,os,datetime,shutil
 from PIL import Image, ImageDraw
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 from dataclasses import dataclass
-from sklearn.cluster import KMeans
+from concurrent.futures import ProcessPoolExecutor
+# from sklearn.cluster import KMeans
 # 读取标注数据编号
+DATASET_DIR=r"C:\Users\13617\Desktop\mycode\eda_match\6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images"
+
 DATANO=38
 
 DEFAULT_DILATED_ITERATION=2
@@ -711,27 +714,30 @@ class annotated_units:
         vdd_idx=n-1
         for unit in self.unit_info:
             componentname=unit['label']
-            if  componentname in ['pmos-cross','nmos-cross']:
-                idx1=unit['contour_connection']['Gate']['contour_idx']
-                idx2=unit['contour_connection']['Gate2']['contour_idx']
-                equivalences.append((idx1,idx2))
-            elif componentname in ['bjt-npn-cross','bjt-pnp-cross']:
-                idx1=unit['contour_connection']['Base']['contour_idx']
-                idx2=unit['contour_connection']['Base2']['contour_idx']
-                equivalences.append((idx1,idx2))
-            elif componentname == 'cross-line-curved':
-                idx1=unit['contour_connection']['Up']['contour_idx']
-                idx2=unit['contour_connection']['Down']['contour_idx']
-                idx3=unit['contour_connection']['Left']['contour_idx']
-                idx4=unit['contour_connection']['Right']['contour_idx']
-                equivalences.append((idx1,idx2))
-                equivalences.append((idx3,idx4))
-            elif componentname == 'gnd':
-                idx=unit['contour_connection']['port']['contour_idx']
-                equivalences.append((idx,gnd_idx))
-            elif componentname == 'vdd' :
-                idx=unit['contour_connection']['port']['contour_idx']
-                equivalences.append((idx,vdd_idx))
+            try:
+                if  componentname in ['pmos-cross','nmos-cross']:
+                    idx1=unit['contour_connection']['Gate']['contour_idx']
+                    idx2=unit['contour_connection']['Gate2']['contour_idx']
+                    equivalences.append((idx1,idx2))
+                elif componentname in ['bjt-npn-cross','bjt-pnp-cross']:
+                    idx1=unit['contour_connection']['Base']['contour_idx']
+                    idx2=unit['contour_connection']['Base2']['contour_idx']
+                    equivalences.append((idx1,idx2))
+                elif componentname == 'cross-line-curved':
+                    idx1=unit['contour_connection']['Up']['contour_idx']
+                    idx2=unit['contour_connection']['Down']['contour_idx']
+                    idx3=unit['contour_connection']['Left']['contour_idx']
+                    idx4=unit['contour_connection']['Right']['contour_idx']
+                    equivalences.append((idx1,idx2))
+                    equivalences.append((idx3,idx4))
+                elif componentname == 'gnd':
+                    idx=unit['contour_connection']['port']['contour_idx']
+                    equivalences.append((idx,gnd_idx))
+                elif componentname == 'vdd' :
+                    idx=unit['contour_connection']['port']['contour_idx']
+                    equivalences.append((idx,vdd_idx))
+            except:
+                continue
 
         for x, y in equivalences:
             uf.union(x, y)
@@ -761,10 +767,15 @@ class annotated_units:
             componentname=unit['label']
             final_lable=LABEL_DICT.get(componentname , None)
             if final_lable is not None:
-                if if_debug:
-                    unit['net']={'component_type':final_lable,'port_connection':{port_name:self.contour2netlist[related_contour['contour_idx']] for port_name,related_contour in unit['contour_connection'].items()},'port_pos':{port_name:related_contour['port_pos'] for port_name,related_contour in unit['contour_connection'].items()}}
-                else:
-                    unit['net']={'component_type':final_lable,'port_connection':{port_name:self.contour2netlist[related_contour['contour_idx']] for port_name,related_contour in unit['contour_connection'].items()}}
+                try:
+                    if if_debug:
+                        unit['net']={'component_type':final_lable,'port_connection':{port_name:self.contour2netlist[related_contour['contour_idx']] for port_name,related_contour in unit['contour_connection'].items()},'port_pos':{port_name:related_contour['port_pos'] for port_name,related_contour in unit['contour_connection'].items()}}
+                    else:
+                        unit['net']={'component_type':final_lable,'port_connection':{port_name:self.contour2netlist[related_contour['contour_idx']] for port_name,related_contour in unit['contour_connection'].items()}}
+                except:
+                    if if_debug:
+                        print(f"Warning: couldn't build net of unit")
+                        print(f'warning unit :{unit}')
 
     def show_netlist_image(self):
         '''
@@ -816,24 +827,27 @@ class annotated_units:
         ax1.set_title('Netlist Ports and Connections')
         ax1.axis('off')  # 隐藏坐标轴
         # 在左上角添加文件名
-        if filename is not None:
+        if extrernal_title is not None:
             ax1.text(
-                10, 10, f"File: {filename}",
+                10, 10, f"File: {extrernal_title}",
                 color='black', fontsize=10, ha='left', va='top', bbox=dict(facecolor='white', alpha=0.8)
             )
         for unit in self.unit_info:
-            net_info = unit['net']  # 获取每个unit的net信息
-            port_pos = net_info['port_pos']  # 端口位置字典
-            port_connection = net_info['port_connection']  # 端口连接信息字典
+            try:
+                net_info = unit['net']  # 获取每个unit的net信息
+                port_pos = net_info['port_pos']  # 端口位置字典
+                port_connection = net_info['port_connection']  # 端口连接信息字典
 
-            # 标记端口位置和添加文字
-            for port, pos in port_pos.items():
-                # 绘制端口位置（红色圆点标记端口）
-                ax1.plot(pos[0], pos[1], 'ro', markersize=5)  # 'ro' 表示红色圆点
+                # 标记端口位置和添加文字
+                for port, pos in port_pos.items():
+                    # 绘制端口位置（红色圆点标记端口）
+                    ax1.plot(pos[0], pos[1], 'ro', markersize=5)  # 'ro' 表示红色圆点
 
-                # 添加文字说明，显示端口和连接信息
-                connection_name = port_connection[port]  # 获取端口的连接信息
-                ax1.text(pos[0], pos[1] - 10, f"{port}: {connection_name}", color='blue', fontsize=8)
+                    # 添加文字说明，显示端口和连接信息
+                    connection_name = port_connection[port]  # 获取端口的连接信息
+                    ax1.text(pos[0], pos[1] - 10, f"{port}: {connection_name}", color='blue', fontsize=8)
+            except:
+                continue
 
         # 第二个子图：显示 contours 和注释信息
         ax2 = axes[1]
@@ -873,21 +887,60 @@ class annotated_units:
         plt.tight_layout()
         plt.show()
         
-    def analyze(self,extrernal_title=None):
+    def analyze(self,extrernal_title=None,if_debug=False):
         self.get_contours()
         self.del_unit_list_component_mask()
         self.get_all_unit_contour_connnections()
-        self.get_netlist(True)
-        # for unit in self.unit_info:
-        #     print(unit)
-        # print(self.contour2netlist)
-        # self.show_netlist_and_contours(extrernal_title=extrernal_title)
+        self.get_netlist(if_debug)
+        if if_debug:
+            for unit in self.unit_info:
+                print(unit)
+            print(self.contour2netlist)
+            self.show_netlist_and_contours(extrernal_title=extrernal_title)
+
+def create_run_dir(base_dir, prefix="run", timestamp=True):
+    """
+    创建一个运行目录，支持自定义前缀和时间戳。
+    
+    Args:
+        base_dir (str): 运行目录的父目录。
+        prefix (str): 运行目录的前缀名称，默认 "run"。
+        timestamp (bool): 是否在目录名中添加时间戳，默认 True。
+    
+    Returns:
+        str: 创建的运行目录的完整路径。
+    """
+    # 确保基础目录存在
+    os.makedirs(base_dir, exist_ok=True)
+    
+    # 构造目录名称
+    dir_name = prefix
+    if timestamp:
+        time_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        dir_name += f"_{time_str}"
+    
+    # 生成完整路径
+    run_dir = os.path.join(base_dir, dir_name)
+    
+    # 确保目录唯一性
+    counter = 1
+    while os.path.exists(run_dir):
+        run_dir = os.path.join(base_dir, f"{dir_name}_{counter}")
+        counter += 1
+    
+    # 创建目录
+    os.makedirs(run_dir)
+    print(f"Run directory created: {run_dir}")
+    return run_dir
 
 
-
-def task(datano:int):
-    json_path=r"C:\Users\13617\Desktop\mycode\eda_match\6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images"+f"\\{datano}.json"
-    image_path=r"C:\Users\13617\Desktop\mycode\eda_match\6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images"+f"\\{datano}.png"
+def task1(datano:int):
+    '''
+        only used on 6th_integrated_circuit_eda_elite_challenge_question10_dataset
+        DATASET_DIR should be its directory
+    '''
+    json_path=DATASET_DIR+f"\\{datano}.json"
+    image_path=DATASET_DIR+f"\\{datano}.png"
 
     with open(json_path, "r") as f:
         annotation_data = json.load(f)
@@ -909,12 +962,120 @@ def task(datano:int):
         except:
             print(f'Picture NO.{datano} contours analysis failed !')
         print(f'Picture NO.{datano} netlist analysis failed !')
-from concurrent.futures import ProcessPoolExecutor
 
+def convert_yolo_result_to_json(result):
+    """
+    将YOLO推理结果转换为指定格式的JSON。
+
+    Args:
+        result (ultralytics.yolo.engine.results.Results): YOLO推理结果对象。
+        image_path (str): 对应图像的路径。
+
+    Returns:
+        dict: 转换后的JSON数据。
+    """
+    shapes = []
+    image_height,image_width=result.orig_shape
+    class_names=result.names
+    # 获取推理结果中的边界框信息
+    boxes = result.boxes
+    for i in range(boxes.shape[0]):
+        # 每个检测框的信息，包括类别、置信度、坐标等
+        class_id = int(boxes.cls[i])  # 类别ID
+        x_min, y_min, x_max, y_max = boxes.xyxy[i].tolist()  # 边界框坐标
+        
+        # 创建一个shape对象
+        shape = {
+            "label": class_names.get(class_id, "unknown"),
+            "points": [[x_min, y_min], [x_max, y_max]],
+        }
+        shapes.append(shape)
+    
+    # 创建最终的JSON结构
+    json_data = {
+        "shapes": shapes,
+        "imagePath": os.path.basename(result.path),
+        "imageHeight": image_height,
+        "imageWidth": image_width
+    }
+    
+    return json_data
+
+def yolomodel_run(model_dir,image_dir,run_dir,generate_dir):
+    from ultralytics import YOLO
+    # Load a model
+    model = YOLO(model_dir)  # pretrained YOLO11n model
+    # temp_dir=create_run_dir(run_dir)
+    # temp_image_dir=os.path.join(temp_dir,'images')
+    # os.makedirs(temp_image_dir, exist_ok=True)
+    # for image in os.listdir(image_dir):
+    #     image_path = os.path.join(image_dir, image)
+    #     # 检查是否为文件（排除子目录）
+    #     if not os.path.isfile(image_path):
+    #         continue
+        
+    #     # 获取文件扩展名并判断是否为jpg
+    #     file_name, ext = os.path.splitext(image)
+    #     if ext.lower() != ".jpg":
+    #         try:
+    #             # 打开图片并转换为jpg格式
+    #             img = Image.open(image_path)
+    #             rgb_img = img.convert("RGB")  # 确保图片为RGB格式
+    #             new_image_path = os.path.join(temp_image_dir, f"{file_name}.jpg")
+    #             rgb_img.save(new_image_path, "JPEG")
+    #             print(f"Converted {image} to {file_name}.jpg")
+                
+    #             # 可选：删除原始非jpg文件
+    #             # os.remove(image_path)
+    #         except Exception as e:
+    #             continue
+    #     else:
+    #         shutil.copy(image_path,os.path.join(temp_image_dir,image))
+    # images=[os.path.join(temp_image_dir,i) for i in os.listdir(temp_image_dir)]
+    # Run batched inference on a list of images
+    results = model(image_dir,
+                    # save_txt=True,project=temp_dir
+                    )  # return a list of Results objects
+    # Process results list
+    if True:
+        for result in results:
+            annotation_data=convert_yolo_result_to_json(result)
+            image=result.orig_img
+            t=annotated_units(image,annotation_data)
+            try:
+                t.analyze()
+                unit_info=t.unit_info
+            except:
+                unit_info=None
+            # t.analyze(if_debug=True)
+            del t
+            ckt_netlist=[unit.get('net',None) for unit in unit_info if unit.get('net',None) is not None] if unit_info is not None else None
+            ckt_type='DISO-Amplifier'
+            final_dict={'ckt_netlist':ckt_netlist,
+                        'ckt_type':ckt_type,
+                        }
+            generate_txt_path=os.path.join(generate_dir,os.path.splitext(os.path.basename(result.path))[0]+'.txt')
+            with open(generate_txt_path,'w') as f:
+                f.write(str(final_dict))
+            print(f'finish analysis of {result.path}')
+            
+    # for result in results:
+    #     boxes = result.boxes  # Boxes object for bounding box outputs
+    #     masks = result.masks  # Masks object for segmentation masks outputs
+    #     keypoints = result.keypoints  # Keypoints object for pose outputs
+    #     probs = result.probs  # Probs object for classification outputs
+    #     obb = result.obb  # Oriented boxes object for OBB outputs
+        # result.show()  # display to screen
+        # result.save(filename="result.jpg")  # save to disk
 if __name__ == '__main__':
-    data = range(701,2270)
-    with ProcessPoolExecutor(max_workers=10) as executor:
-        results = list(executor.map(task, data))
+    # data = range(701,2270)
+    # with ProcessPoolExecutor(max_workers=10) as executor:
+    #     results = list(executor.map(task1, data))
+    model_dir=r"C:\Users\13617\Desktop\mycode\eda_match\datasets\eda\yolo_train_run3\weights\best.pt"
+    run_dir=r"C:\Users\13617\Desktop\mycode\eda_match\public\run"
+    image_dir=r'C:\Users\13617\Desktop\mycode\eda_match\public\images'
+    generate_dir=r'C:\Users\13617\Desktop\mycode\eda_match\public\generate'
+    yolomodel_run(model_dir,image_dir,run_dir,generate_dir)
 
 
 

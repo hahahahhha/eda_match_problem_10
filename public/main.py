@@ -1,8 +1,10 @@
 import time
 import warnings
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 from math import log10  
 from utils import *
+
 
 # 单个测例的测试函数
 def test_case(generated_netlist,ground_truth_netlist,id,):
