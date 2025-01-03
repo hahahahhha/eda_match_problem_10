@@ -1,1 +1,1 @@
-is the same as README.md
+refer to README.md, please

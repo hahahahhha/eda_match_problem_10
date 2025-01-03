@@ -6,7 +6,9 @@ from matplotlib import pyplot as plt
 from dataclasses import dataclass
 from concurrent.futures import ProcessPoolExecutor
 
-DATASET_DIR=r"C:\Users\13617\Desktop\mycode\eda_match\6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images"
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+DATASET_DIR=os.path.join(script_directory,"6th_integrated_circuit_eda_elite_challenge_question10_dataset/all_images")
 
 DATANO=38
 
@@ -1041,8 +1043,8 @@ if __name__ == '__main__':
     # with ProcessPoolExecutor(max_workers=10) as executor:
     #     results = list(executor.map(task1, data))
     # task1(38)
-    model_dir=r"C:\Users\13617\Desktop\mycode\eda_match\datasets\eda\yolo_train_run3\weights\best.pt"
-    run_dir=r"C:\Users\13617\Desktop\mycode\eda_match\public\run"
-    image_dir=r'C:\Users\13617\Desktop\mycode\eda_match\public\images'
-    generate_dir=r'C:\Users\13617\Desktop\mycode\eda_match\public\generate'
+    model_dir=os.path.join(script_directory,"/datasets/eda/yolo_train_run3/weights/best.pt")
+    run_dir=os.path.join(script_directory,"public/run")
+    image_dir=os.path.join(script_directory,'public/images')
+    generate_dir=os.path.join(script_directory,'public/generate')
     yolomodel_run(model_dir,image_dir,run_dir,generate_dir)

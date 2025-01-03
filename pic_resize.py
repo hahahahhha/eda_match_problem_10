@@ -35,8 +35,8 @@ def resize_images(input_dir, output_dir, target_size):
             print(f"Error processing {img_name}: {e}")
 
 
-# 示例：调整图片为 640x640
-main_dir=r'C:\Users\13617\Desktop\mycode\eda_match\datasets\eda\images'
+script_directory = os.path.dirname(os.path.abspath(__file__))
+main_dir=os.path.join(script_directory,r'datasets\eda\images')
 for subset in ['test','train','val']:
     aaapath=os.path.join(main_dir,subset)
     resize_images(

@@ -1,4 +1,4 @@
-import json
+import json,os
 from PIL import Image, ImageDraw
 import cv2
 import numpy as np
@@ -6,8 +6,10 @@ from matplotlib import pyplot as plt
 from dataclasses import dataclass
 # 读取标注数据
 DATANO=64
-json_path=r"C:\Users\13617\Desktop\mycode\eda_match\6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images"+f"\\{DATANO}.json"
-image_path=r"C:\Users\13617\Desktop\mycode\eda_match\6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images"+f"\\{DATANO}.png"
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+json_path=os.path.join(script_directory,r"6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images"+f"\\{DATANO}.json")
+image_path=os.path.join(script_directory,r"6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images"+f"\\{DATANO}.png")
 with open(json_path, "r") as f:
     annotation_data = json.load(f)
 
@@ -37,9 +39,9 @@ for shape in shapes:
 image.show()
 
 # 保存结果
-output_path = f"annotated_image_{DATANO}.png"
-image.save(output_path)
-print(f"Annotated image saved to {output_path}")
+# output_path = f"annotated_image_{DATANO}.png"
+# image.save(output_path)
+# print(f"Annotated image saved to {output_path}")
 
 
 

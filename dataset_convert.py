@@ -7,6 +7,12 @@ import random
 PIC_NUM=2269
 label_to_class_id={}
 
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+LABELS_DIR=os.path.join(script_directory,r'6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images')       # 原始标签文件夹路径
+IMAGES_DIR=os.path.join(script_directory,r'6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images')      # 原始图片文件夹路径
+OUTPUT_DIR=os.path.join(script_directory,r'datasets\eda')               # 输出数据集的根目录
+
 for idx,key in enumerate(LABEL_DICT):
     label_to_class_id[key]=idx
 
@@ -99,8 +105,8 @@ def split_dataset(labels_dir, images_dir, output_dir, train_ratio=0.8, val_ratio
 # 使用示例
 if __name__ == '__main__':
     split_dataset(
-        labels_dir=r'C:\Users\13617\Desktop\mycode\eda_match\6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images',       # 原始标签文件夹路径
-        images_dir=r'C:\Users\13617\Desktop\mycode\eda_match\6th_integrated_circuit_eda_elite_challenge_question10_dataset\all_images',       # 原始图片文件夹路径
-        output_dir=r'C:\Users\13617\Desktop\mycode\eda_match\datasets\eda'               # 输出数据集的根目录
+        labels_dir=LABELS_DIR,
+        images_dir=IMAGES_DIR,
+        output_dir=OUTPUT_DIR
     )
 

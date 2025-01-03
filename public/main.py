@@ -1,16 +1,12 @@
 import time
 import warnings
 import os
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 from math import log10  
 from utils import *
 
 
 # 单个测例的测试函数
 def test_case(generated_netlist,ground_truth_netlist,id,):
-    # generated_netlist 是一个字典
-
-
     case_id = id # 电路编号
     
     # 获取待测的电路连接
