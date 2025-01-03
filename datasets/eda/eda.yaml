@@ -1,0 +1,49 @@
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+path: /home/ubuntu/eda_match/datasets/eda # dataset root dir
+train: images/train # train images (relative to 'path') 4 images
+val: images/val # val images (relative to 'path') 4 images
+test: images/test # test images (optional)
+
+# Classes 
+names:
+  0: pmos
+  1: pmos-normal
+  2: pmos-cross
+  3: pmos-bulk
+  4: nmos
+  5: nmos-normal
+  6: nmos-cross
+  7: nmos-bulk
+  8: voltage
+  9: voltage-1
+  10: voltage-2
+  11: voltage-lines
+  12: current
+  13: bjt-npn
+  14: npn
+  15: npn-cross
+  16: bjt-npn-cross
+  17: bjt-pnp
+  18: pnp
+  19: bjt-pnp-cross
+  20: pnp-cross
+  21: diode
+  22: diso-amp
+  23: single-end-amp
+  24: siso-amp
+  25: single-input-single-end-amp
+  26: dido-amp
+  27: diff-amp
+  28: capacitor
+  29: gnd
+  30: vdd
+  31: inductor
+  32: resistor
+  33: resistor-1
+  34: resistor-2
+  35: resistor2
+  36: cross-line-curved
+  37: port
+  38: switch
+  39: switch3
+  40: switch-3
