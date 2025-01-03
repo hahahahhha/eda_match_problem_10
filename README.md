@@ -82,11 +82,11 @@ python analyze.py
 详见public目录下的README
 
 # 实际预测效果
-测试报告可见public\validation_report.md. 在40个样例中仅有一例完全正确,多数由于未知原因GED测试程序超时.
+测试报告可见public/validation_report.md. 在40个样例中仅有一例完全正确,多数由于未知原因GED测试程序超时.
 
 以下为两例识别效果图
-![example1](README_image\example1.png)
-![example2](README_image\example2.png)
+![example1](README_image/example1.png)
+![example2](README_image/example2.png)
 
 # 存在的不足与改进空间
 1. 连线识别仍然不够准确.可以考虑ocr删除文字干扰预处理,以及自适应的膨胀迭代数实现.此外,对于虚线电路连线的支持\对于干扰勾画线的排除有待挖掘.
