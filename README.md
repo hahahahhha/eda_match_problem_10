@@ -75,6 +75,7 @@ python analyze.py
 
 ## yolo11_train.py
 作用是在yolo11预训练模型基础上训练电路元件识别模型
+
 如果想重新训练 yolo11 模型，需要手动修改 datasets/eda/eda.yaml 中的 path 为当前的 datasets/eda 的绝对目录
 
 
@@ -98,9 +99,13 @@ python analyze.py
 
 # 参考资料
 https://docs.qq.com/doc/DY21FS2xkV3NqT2xR
+
 https://github.com/CjLiu-NJU/6th_integrated_circuit_eda_elite_challenge_question10_dataset
+
 https://docs.qq.com/doc/DR2pYcm91T0VBUXlY
+
 https://docs.ultralytics.com/
+
 https://eda.icisc.cn/download/toVideoDetail?id=ac13a48cb4254f6ebbb37af2ede176c7
 
 [^1]:以下示例电路图来源于6th_integrated_circuit_eda_elite_challenge_question10_dataset/all_images下的38号电路图
