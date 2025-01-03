@@ -107,6 +107,7 @@ RELATIVE_PORT_DICT={
     'switch3':{'port1':(1,0),'port2':(0,1),'port3':(0,1)},
     'switch-3':{'port1':(1,0),'port2':(0,1),'port3':(0,1)},
 }
+
 PORT_DICT={}
 for key in RELATIVE_PORT_DICT:
     PORT_DICT[key]={key1:None for key1 in RELATIVE_PORT_DICT[key]}
@@ -207,7 +208,7 @@ class annotated_units:
         self.contours_original, _ = cv2.findContours(self.edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         self.contours_without_components, _ = cv2.findContours(self.edges_without_components, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    def get_contour_relation(self,slave_contours, master_contours):
+    def get_contour_relation(self,slave_contours, master_contours):# 没用到
         contour_relations = {}
         for slave_contour in slave_contours:
             # 创建一个掩膜来绘制当前的轮廓
@@ -329,7 +330,7 @@ class annotated_units:
         # 显示图像
         plt.show()
     def get_contours(self,if_search_iter:bool=False):#考虑图像分辨率不同,典型线宽不同的影响,找到迭代数
-        if if_search_iter:#TODO .............
+        if if_search_iter:#TODO ....
             minimum_port_num=self.get_valid_contours_port_num(self.contours_without_components)
             self.valid_contours_port_num=minimum_port_num
             self.dilated_iteration=0
@@ -676,7 +677,6 @@ class annotated_units:
 
         return results
 
-
     def get_single_unit_contour_connnections(self,unit):
         componentname=unit['label']
         final_lable=LABEL_DICT.get(componentname , None)
@@ -1019,7 +1019,7 @@ def yolomodel_run(model_dir,image_dir,run_dir,generate_dir):
             image=result.orig_img
             t=annotated_units(image,annotation_data)
             try:
-                t.analyze(f' ',True)
+                t.analyze()
                 unit_info=t.unit_info
             except:
                 unit_info=None
@@ -1043,8 +1043,9 @@ if __name__ == '__main__':
     # with ProcessPoolExecutor(max_workers=10) as executor:
     #     results = list(executor.map(task1, data))
     # task1(38)
-    model_dir=os.path.join(script_directory,"/datasets/eda/yolo_train_run3/weights/best.pt")
-    run_dir=os.path.join(script_directory,"public/run")
-    image_dir=os.path.join(script_directory,'public/images')
-    generate_dir=os.path.join(script_directory,'public/generate')
+    model_dir=os.path.join(script_directory,r"datasets\eda\yolo_train_run3\weights\best.pt")
+    run_dir=os.path.join(script_directory,r"public\run")
+    image_dir=os.path.join(script_directory,r'public\images')
+    generate_dir=os.path.join(script_directory,r'public\generate1')
+    os.makedirs(generate_dir,exist_ok=True)
     yolomodel_run(model_dir,image_dir,run_dir,generate_dir)

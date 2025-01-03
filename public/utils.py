@@ -1,7 +1,6 @@
 from networkx import graph_edit_distance
 import networkx as nx
 import os
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 from torch.utils.data import DataLoader
 import dgl
 import torch as th
